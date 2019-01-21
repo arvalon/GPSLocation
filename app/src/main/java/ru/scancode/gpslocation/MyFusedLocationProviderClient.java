@@ -58,7 +58,7 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
 
             mFusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
                 if (location != null) {
-                    showLocation();;
+                    showLocation();
                 }
             });
 
