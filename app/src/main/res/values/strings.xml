@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GPSLocation</string>
+    <string name="app_name">GPS Location</string>
     <string name="permission_rationale">Permission Rationale</string>
     <string name="permission_denied_explanation">Permission denied explanation</string>
     <string name="settings">Settings</string>

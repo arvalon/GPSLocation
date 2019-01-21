@@ -239,8 +239,13 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
                             showLocation();
 
                         } else {
-                            Logs.error(this, task.getException().getMessage(), task.getException());
+
+                            Logs.info(this,"onCompleteListener NO LAST LOCATION");
                             showSnackbar(R.string.no_location_detected, android.R.string.ok, null);
+
+                            if (task.getException()!=null){
+                                Logs.error(this, task.getException().getMessage(), task.getException());
+                            }
                         }
                     }
                 });
@@ -281,7 +286,7 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
 
         Snackbar.make(this.findViewById(android.R.id.content),
                 getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
+                Snackbar.LENGTH_SHORT)
                 .setAction(getString(actionStringId), listener).show();
     }
 
