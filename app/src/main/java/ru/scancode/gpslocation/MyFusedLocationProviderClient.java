@@ -73,11 +73,9 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
                 public void onLocationResult(LocationResult locationResult) {
                     for (Location location : locationResult.getLocations()) {
                         // Update UI with location data
-                        showLocation();;
+                        showLocation();
                     }
                 }
-
-                ;
             };
 
         }catch (SecurityException ex){
