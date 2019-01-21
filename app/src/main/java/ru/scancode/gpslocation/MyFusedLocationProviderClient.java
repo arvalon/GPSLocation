@@ -32,7 +32,7 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 14;
 
-    private static final long UPDATE_INTERVAL = 5000, FASTEST_INTERVAL = 5000; // = 5 seconds
+    private static final long UPDATE_INTERVAL = 1500, FASTEST_INTERVAL = 1500;
 
     private TextView locationTv;
     // private AddressResultReceiver mResultReceiver;
@@ -50,6 +50,8 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fused_location_provider_client);
 
+        Logs.info(this,"onCreate");
+
         locationTv = findViewById(R.id.location);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -58,6 +60,7 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
 
             mFusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
                 if (location != null) {
+                    Logs.info(this,"onSuccessListener");
                     showLocation();
                 }
             });
@@ -71,8 +74,17 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
             mLocationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
+
+                    Logs.info(this,"onLocationResult, locations count: "
+                            +locationResult.getLocations().size());
+
                     for (Location location : locationResult.getLocations()) {
-                        // Update UI with location data
+
+                        // Update location data and UI
+                        Logs.info(this, shortLocation(location));
+
+                        lastLocation=location;
+
                         showLocation();
                     }
                 }
@@ -87,6 +99,8 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        Logs.info(this,"onStart");
+
         if (!checkPermissions()) {
             startLocationUpdates();
             requestPermissions();
@@ -99,24 +113,34 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
 
     @Override
     public void onPause() {
+        Logs.info(this,"onPause");
         stopLocationUpdates();
         super.onPause();
     }
 
     /** Return the current state of the permissions needed */
     private boolean checkPermissions() {
+
+        Logs.info(this,"checkPermissions");
+
         int permissionState = ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     private void startLocationPermissionRequest() {
+
+        Logs.info(this,"startLocationPermissionRequest");
+
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                 REQUEST_PERMISSIONS_REQUEST_CODE);
     }
 
     private void requestPermissions() {
+
+        Logs.info(this,"requestPermission");
+
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -143,9 +167,12 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
 
     /** Callback received when a permissions request has been completed. */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+
         Logs.info(this, "onRequestPermissionResult");
+
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
@@ -170,10 +197,11 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
                         view -> {
                             // Build intent that displays the App settings screen.
                             Intent intent = new Intent();
-                            intent.setAction(
-                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+
                             Uri uri = Uri.fromParts("package",
                                     BuildConfig.APPLICATION_ID, null);
+
                             intent.setData(uri);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
@@ -192,12 +220,21 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
      */
     @SuppressWarnings("MissingPermission")
     private void getLastLocation() {
+
+        Logs.info(this,"getLastLocation");
+
         mFusedLocationClient.getLastLocation()
                 .addOnCompleteListener(this, new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
+
+                        Logs.info(this,"onCompleteListener");
+
                         if (task.isSuccessful() && task.getResult() != null) {
                             lastLocation = task.getResult();
+
+                            Logs.info(this,"onCompleteListener last "
+                                    +shortLocation(lastLocation));
 
                             showLocation();
 
@@ -210,10 +247,14 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
     }
 
     private void stopLocationUpdates() {
+        Logs.info(this,"stopLocationUpdates");
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
     private void startLocationUpdates() {
+
+        Logs.info(this,"startLocationUpdates");
+
         if (ActivityCompat
                 .checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -232,8 +273,11 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
         mFusedLocationClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
     }
 
-    private void showSnackbar(final int mainTextStringId, final int actionStringId,
+    private void showSnackbar(final int mainTextStringId,
+                              final int actionStringId,
                               View.OnClickListener listener) {
+
+        Logs.info(this,"showSnackbar");
 
         Snackbar.make(this.findViewById(android.R.id.content),
                 getString(mainTextStringId),
@@ -246,5 +290,10 @@ public class MyFusedLocationProviderClient extends AppCompatActivity {
             locationTv.setText("Latitude : " + lastLocation.getLatitude()
                     + "\nLongitude : " + lastLocation.getLongitude());
         }
+    }
+
+    private String shortLocation(Location loc){
+
+        return "location, latitude: " +loc.getLatitude() +", longitude: "+loc.getLongitude();
     }
 }
